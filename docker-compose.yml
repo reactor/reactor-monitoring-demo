@@ -1,0 +1,29 @@
+version: "2"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.10.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+
+  prometheus_pushgateway:
+    image: prom/pushgateway:v0.8.0
+    ports:
+      - "9091:9091"
+
+  grafana:
+    image: grafana/grafana:6.2.5
+    ports:
+      - "3000:3000"
+    volumes:
+      - "/var/lib/grafana"
+      - "./grafana_datasources.yaml:/etc/grafana/provisioning/datasources/grafana_datasource.yaml"
+      - "./grafana_dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml"
+      - "./dashboards:/var/lib/grafana/dashboards"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: secret
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_NAME: Main Org.
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
