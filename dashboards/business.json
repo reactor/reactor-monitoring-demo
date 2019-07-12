@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 2,
-  "id": 2,
   "links": [],
   "panels": [
     {
@@ -72,7 +71,100 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Wikipedia changes / 1min",
+      "title": "Producing Rate  - Wikipedia changes / 1min",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "decimals": null,
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "decimals": 0,
+      "fill": 1,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 10,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "hideEmpty": true,
+        "hideZero": true,
+        "max": true,
+        "min": false,
+        "rightSide": true,
+        "show": false,
+        "sideWidth": 400,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": true,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "irate(reactor_requested_requested_amount_sum{flow=\"recentchange\"}[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "changes",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Consuming Rate  - Wikipedia changes / 1min",
       "tooltip": {
         "shared": true,
         "sort": 0,
