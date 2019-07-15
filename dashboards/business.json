@@ -32,24 +32,25 @@
         "y": 0
       },
       "id": 7,
+      "interval": "5s",
       "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "hideEmpty": true,
-        "hideZero": true,
-        "max": true,
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": false,
         "min": false,
-        "rightSide": true,
-        "show": false,
+        "rightSide": false,
+        "show": true,
         "sideWidth": 400,
         "total": false,
-        "values": true
+        "values": false
       },
       "lines": true,
       "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "null as zero",
       "options": {},
       "percentage": false,
       "pointradius": 2,
@@ -57,8 +58,24 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "requested",
-          "transform": "negative-Y"
+          "alias": "request",
+          "bars": true,
+          "color": "#37872D",
+          "lines": false,
+          "points": false,
+          "transform": "negative-Y",
+          "yaxis": 2,
+          "zindex": -3
+        },
+        {
+          "alias": "pending",
+          "dashes": true,
+          "lines": true,
+          "pointradius": 1,
+          "steppedLine": true
+        },
+        {
+          "alias": "changes"
         }
       ],
       "spaceLength": 10,
@@ -66,25 +83,36 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(reactor_onNext_delay_seconds_count{flow=\"recentchange\"}[1m])",
+          "expr": "increase(reactor_requested_requested_amount_sum[6s])",
           "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "request",
+          "refId": "A"
+        },
+        {
+          "expr": "increase(reactor_onNext_delay_seconds_count{flow=\"recentchange\"}[6s])",
+          "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "changes",
           "refId": "B"
         },
         {
-          "expr": "irate(reactor_requested_requested_amount_sum{flow=\"recentchange\"}[1m])",
+          "expr": "reactor_requested_requested_amount_sum{flow=\"recentchange\"}-reactor_onNext_delay_seconds_count{flow=\"recentchange\"}",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "requested",
-          "refId": "A"
+          "legendFormat": "pending",
+          "refId": "C"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Producing Rate  - Wikipedia changes / 1min",
+      "title": "Wikipedia changes",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -109,11 +137,11 @@
           "show": true
         },
         {
-          "decimals": null,
+          "decimals": 0,
           "format": "short",
           "label": null,
           "logBase": 1,
-          "max": null,
+          "max": "0",
           "min": null,
           "show": true
         }
@@ -128,6 +156,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
+      "datasource": "Prometheus",
       "decimals": 0,
       "fill": 1,
       "gridPos": {
@@ -136,7 +165,8 @@
         "x": 0,
         "y": 7
       },
-      "id": 10,
+      "id": 11,
+      "interval": "",
       "legend": {
         "alignAsTable": true,
         "avg": true,
@@ -166,10 +196,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(reactor_requested_requested_amount_sum{flow=\"recentchange\"}[1m])",
+          "expr": "idelta(reactor_onNext_delay_seconds_count{type=\"Flux\",flow=\"recentchange\"}[1m]) - ignoring(flow,type) idelta(reactor_subscribed_subscribers_total{flow=\"processing\"}[1m])",
           "format": "time_series",
+          "instant": false,
+          "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "changes",
+          "legendFormat": "",
           "refId": "B"
         }
       ],
@@ -177,7 +209,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Consuming Rate  - Wikipedia changes / 1min",
+      "title": "Dropped",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -351,5 +383,5 @@
   "timezone": "",
   "title": "Business",
   "uid": "business",
-  "version": 5
+  "version": 10
 }

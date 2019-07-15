@@ -38,7 +38,7 @@ public class DemoApplication {
 				.bodyToFlux(JsonNode.class)
 				.name("recentchange")
 				.metrics()
-				.limitRate(2000)
+				.limitRate(1000)
 				.onBackpressureLatest()
 				.concatMap(change -> {
 					return processChange(change)
