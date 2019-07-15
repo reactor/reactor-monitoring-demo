@@ -15,6 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 2,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -54,7 +55,12 @@
       "pointradius": 2,
       "points": true,
       "renderer": "flot",
-      "seriesOverrides": [],
+      "seriesOverrides": [
+        {
+          "alias": "requested",
+          "transform": "negative-Y"
+        }
+      ],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
@@ -65,6 +71,13 @@
           "intervalFactor": 1,
           "legendFormat": "changes",
           "refId": "B"
+        },
+        {
+          "expr": "irate(reactor_requested_requested_amount_sum{flow=\"recentchange\"}[1m])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "requested",
+          "refId": "A"
         }
       ],
       "thresholds": [],
@@ -92,7 +105,7 @@
           "label": "",
           "logBase": 1,
           "max": null,
-          "min": "0",
+          "min": null,
           "show": true
         },
         {
@@ -120,8 +133,8 @@
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 12,
-        "y": 0
+        "x": 0,
+        "y": 7
       },
       "id": 10,
       "legend": {
@@ -214,7 +227,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 7
+        "y": 14
       },
       "id": 9,
       "legend": {
@@ -338,5 +351,5 @@
   "timezone": "",
   "title": "Business",
   "uid": "business",
-  "version": 1
+  "version": 5
 }

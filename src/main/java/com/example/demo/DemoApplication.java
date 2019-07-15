@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import java.time.Duration;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.boot.SpringApplication;
@@ -18,8 +19,9 @@ import reactor.core.scheduler.Schedulers;
 @RestController
 public class DemoApplication {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Schedulers.enableMetrics();
+
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
@@ -36,10 +38,13 @@ public class DemoApplication {
 				.bodyToFlux(JsonNode.class)
 				.name("recentchange")
 				.metrics()
+				.limitRate(2000)
+				.onBackpressureLatest()
 				.concatMap(change -> {
 					return processChange(change)
 							.name("processing")
 							.metrics()
+							.delayElement(Duration.ofMillis(ThreadLocalRandom.current().nextInt(50, 500)))
 							.onErrorResume(IllegalStateException.class, __ -> Mono.empty());
 				})
 				.doOnNext(sink::next)
@@ -52,12 +57,12 @@ public class DemoApplication {
 
 	@GetMapping("/latestChange")
 	public Mono<String> latestChange() {
-		return latestChange.next();
+		return latestChange.next().delayElement(Duration.ofMillis(10));
 	}
 
 	Mono<String> processChange(JsonNode change) {
 		if (change.path("bot").asBoolean()) {
-			return Mono.error(new IllegalStateException("OMG! I don't know how to handle the bots!"));
+			// return Mono.error(new IllegalStateException("OMG! I don't know how to handle the bots!"));
 		}
 		return Mono.just("Change to '" + change.path("title").asText(null) + "' by '" + change.path("user").asText(null) + "'");
 	}
