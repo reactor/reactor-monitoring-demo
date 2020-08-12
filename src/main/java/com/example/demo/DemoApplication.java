@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.FluxProcessor;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.ReplayProcessor;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.retry.Retry;
 
 @SpringBootApplication
 @RestController
@@ -23,18 +24,17 @@ public class DemoApplication {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
-	final ReplayProcessor<String> latestChange = ReplayProcessor.cacheLast();
+	final Sinks.Many<String> latestChange = Sinks.many().replay().latest();
+	final FluxProcessor<String, String> processor = FluxProcessor.fromSink(latestChange);
 
 	public DemoApplication(WebClient.Builder webClientBuilder) {
-		FluxSink<String> sink = latestChange.sink(FluxSink.OverflowStrategy.LATEST);
-
 		WebClient webClient = webClientBuilder.build();
 
 		webClient.get()
 				.uri("https://stream.wikimedia.org/v2/stream/recentchange")
 				.retrieve()
 				.bodyToFlux(JsonNode.class)
-				.name("recentchange")
+				.name("recentChanges")
 				.metrics()
 				.concatMap(change -> {
 					return processChange(change)
@@ -42,17 +42,17 @@ public class DemoApplication {
 							.metrics()
 							.onErrorResume(IllegalStateException.class, __ -> Mono.empty());
 				})
-				.doOnNext(sink::next)
+				.doOnNext(processor::onNext)
 				// Avoid polluting the logs
 				.sample(Duration.ofSeconds(1))
 				.log()
-				.retryWhen(it -> it.delayElements(Duration.ofSeconds(1)))
+				.retryWhen(Retry.fixedDelay(100, Duration.ofSeconds(1)))
 				.subscribe();
 	}
 
 	@GetMapping("/latestChange")
 	public Mono<String> latestChange() {
-		return latestChange.next();
+		return processor.next();
 	}
 
 	Mono<String> processChange(JsonNode change) {
