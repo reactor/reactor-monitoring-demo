@@ -25,7 +25,6 @@ public class DemoApplication {
 	}
 
 	final Sinks.Many<String> latestChange = Sinks.many().replay().latest();
-	final FluxProcessor<String, String> processor = FluxProcessor.fromSink(latestChange);
 
 	public DemoApplication(WebClient.Builder webClientBuilder) {
 		WebClient webClient = webClientBuilder.build();
@@ -38,10 +37,10 @@ public class DemoApplication {
 				.metrics()
 				.concatMap(change -> processChange(change)
 							.onErrorResume(IllegalStateException.class, __ -> Mono.empty())
-							.onErrorContinue(IllegalArgumentException.class, (t, o) -> System.out.println(t))
+							.onErrorContinue(IllegalArgumentException.class, (t, o) -> System.out.println(t.toString()))
 							.name("processing")
 							.metrics())
-				.doOnNext(processor::onNext)
+				.doOnNext(latestChange::emitNext)
 				// Avoid polluting the logs
 				.sample(Duration.ofSeconds(1))
 				.log()
@@ -51,12 +50,7 @@ public class DemoApplication {
 
 	@GetMapping("/latestChange")
 	public Mono<String> latestChange() {
-		return processor.next();
-	}
-
-	@GetMapping("/cancel")
-	public Flux<String> cancel(){
-		return processor.cancelOn(Schedulers.immediate());
+		return latestChange.asFlux().next();
 	}
 
 	Mono<String> processChange(JsonNode change) {
