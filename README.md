@@ -1,4 +1,4 @@
-# Reactor monitoring demo
+# The Reactor monitoring demo is no longer actively maintained. 
 
 ## Preparation
 You will need Java 8+, Docker and Docker Compose installed.
